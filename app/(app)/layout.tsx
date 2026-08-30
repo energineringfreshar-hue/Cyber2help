@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/session'
 import { AppSidebar } from '@/components/app-sidebar'
+import { GovHeader } from '@/components/brand/gov-header'
 
 export default async function AppLayout({
   children,
@@ -17,9 +18,14 @@ export default async function AppLayout({
           role: user.role,
         }}
       />
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
-      </main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="shrink-0 border-b border-border bg-card/50 px-6 py-2 backdrop-blur-sm">
+          <GovHeader compact />
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
+        </main>
+      </div>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { runIntegrityCheck } from '@/app/(app)/actions/audit'
 import { toast } from 'sonner'
 import { ShieldCheck, ShieldAlert, Link2, Loader2 } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-time'
 
 type LedgerRow = {
   id: number
@@ -113,7 +114,7 @@ export function LedgerView({ rows }: { rows: LedgerRow[] }) {
                   )}
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {new Date(r.createdAt).toLocaleString()}
+                  {formatDateTime(r.createdAt)}
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">

@@ -16,6 +16,7 @@ import {
 import { ingestAnpr } from '@/app/(app)/actions/surveillance'
 import { toast } from 'sonner'
 import { Camera, ScanLine, Search } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-time'
 
 type AnprRow = {
   id: number
@@ -178,7 +179,7 @@ export function AnprPanel({ initialReads }: { initialReads: AnprRow[] }) {
                   <TableCell className="text-muted-foreground">{r.cameraName ?? '—'}</TableCell>
                   <TableCell className="font-mono">{r.confidence != null ? `${r.confidence}%` : '—'}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(r.createdAt).toLocaleString()}
+                    {formatDateTime(r.createdAt)}
                   </TableCell>
                 </TableRow>
               ))}

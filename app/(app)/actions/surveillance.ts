@@ -6,7 +6,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { requireUser } from '@/lib/session'
 import { can } from '@/lib/rbac'
 import { appendAudit } from '@/lib/audit'
-import { scoreEvent, type EventType, type RiskContext } from '@/lib/surveillance/rules'
+import { scoreEvent, isNightNow, type EventType, type RiskContext } from '@/lib/surveillance/rules'
 import { revalidatePath } from 'next/cache'
 
 export async function getEvents(limit = 100) {
@@ -84,6 +84,30 @@ export async function ingestEvent(input: IngestEventInput) {
   revalidatePath('/surveillance')
   revalidatePath('/alerts')
   return { id: row.id, severity, score }
+}
+
+// Fired by the Live Monitoring radar map when a tracked UAV crosses the
+// 30 km monitoring-zone boundary. Records a real high-risk event so it flows
+// into the same /alerts feed and dashboard as every other detection.
+export async function reportAerialIncursion(input: {
+  droneId: string
+  bearing: number
+  rangeKm: number
+}) {
+  return ingestEvent({
+    cameraName: `RADAR-STN-01 · ${input.droneId}`,
+    location: `Monitoring zone boundary · bearing ${Math.round(input.bearing)}° · ${input.rangeKm.toFixed(0)} km`,
+    eventType: 'VEHICLE_IN_RESTRICTED_ZONE',
+    confidence: 90,
+    context: { unknownSubject: true, isNight: isNightNow() },
+    metadata: {
+      subject: 'UAV',
+      pattern: 'unusual_flight_pattern',
+      droneId: input.droneId,
+      bearingDeg: input.bearing,
+      rangeKm: input.rangeKm,
+    },
+  })
 }
 
 export async function acknowledgeEvent(id: number) {
