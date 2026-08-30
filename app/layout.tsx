@@ -8,9 +8,9 @@ const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
 
 export const metadata: Metadata = {
-  title: 'SecureBorder — AI Identity & Border Screening',
+  title: 'Seema Rakshak — SSB / MHA Border Screening Platform',
   description:
-    'AI-powered fake identity, document screening, and border video analytics platform with tamper-evident audit trail.',
+    'Seema Rakshak: a Ministry of Home Affairs border security platform for AI identity & document screening, real-time surveillance analytics, and a tamper-evident audit trail.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#1a1d24',
+  themeColor: '#0f1420',
 }
 
 export default function RootLayout({

@@ -76,15 +76,24 @@ export function AppSidebar({
 
   return (
     <aside className="flex h-dvh w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex size-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <ShieldHalf className="size-5" />
+      <div className="px-5 py-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex size-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <ShieldHalf className="size-5" />
+          </div>
+          <div className="leading-tight">
+            <p className="font-semibold tracking-tight text-sidebar-foreground">
+              Seema Rakshak
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              SSB · MHA Border Grid
+            </p>
+          </div>
         </div>
-        <div className="leading-tight">
-          <p className="font-semibold tracking-tight text-sidebar-foreground">SecureBorder</p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            SSB · Screening Grid
-          </p>
+        <div className="mt-3 flex h-1 w-full overflow-hidden rounded-full" aria-hidden="true">
+          <span className="flex-1 bg-[var(--india-saffron)]" />
+          <span className="flex-1 bg-sidebar-foreground/80" />
+          <span className="flex-1 bg-[var(--india-green)]" />
         </div>
       </div>
 
