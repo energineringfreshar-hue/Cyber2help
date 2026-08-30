@@ -11,6 +11,7 @@ import { EVENT_LABELS, scoreEvent } from '@/lib/surveillance/rules'
 import { toast } from 'sonner'
 import { UserPlus, Car, PowerOff, Power, ShieldAlert, Radio } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatTime } from '@/lib/format-time'
 
 type LiveEvent = FeedEvent & { id: string; cameraName: string; severity: string; at: Date }
 
@@ -153,7 +154,7 @@ export function SurveillanceConsole({ cameras }: { cameras: FeedCamera[] }) {
                         <SeverityBadge level={e.severity as never} />
                       </div>
                       <p className="truncate text-xs text-muted-foreground">
-                        {e.cameraName} · {e.at.toLocaleTimeString()}
+                        {e.cameraName} · {formatTime(e.at)}
                       </p>
                     </div>
                   </li>

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { SeverityBadge } from '@/components/severity-badge'
 import { History } from 'lucide-react'
+import { formatDateTime } from '@/lib/format-time'
 
 type Doc = {
   id: number
@@ -79,7 +80,7 @@ export function DocumentHistory({ docs }: { docs: Doc[] }) {
                         <span className="text-xs capitalize text-muted-foreground">{d.status}</span>
                       </TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
-                        {new Date(d.createdAt).toLocaleString()}
+                        {formatDateTime(d.createdAt)}
                       </TableCell>
                     </TableRow>
                   )

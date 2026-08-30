@@ -12,6 +12,7 @@ import { acknowledgeEvent } from '@/app/(app)/actions/surveillance'
 import { toast } from 'sonner'
 import { Check, MapPin, Search, ShieldAlert } from 'lucide-react'
 import { EVENT_LABELS } from '@/lib/surveillance/rules'
+import { formatDateTime } from '@/lib/format-time'
 
 type EventRow = {
   id: number
@@ -181,7 +182,7 @@ export function AlertsPanel({
                   </span>
                   <span className="font-mono">risk {e.riskScore}</span>
                   {e.confidence != null && <span>conf {e.confidence}%</span>}
-                  <span>{new Date(e.createdAt).toLocaleString()}</span>
+                  <span>{formatDateTime(e.createdAt)}</span>
                 </span>
               </div>
             </div>

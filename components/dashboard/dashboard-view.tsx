@@ -9,6 +9,7 @@ import { SeverityBadge } from '@/components/severity-badge'
 import { LiveIndicator } from '@/components/live-indicator'
 import { LiveMonitoring } from '@/components/dashboard/live-monitoring'
 import { EVENT_LABELS } from '@/lib/surveillance/rules'
+import { formatTime, formatDateTime } from '@/lib/format-time'
 import { FileSearch, ShieldAlert, Video, ScanLine, ArrowRight, TriangleAlert } from 'lucide-react'
 
 type DashboardData = {
@@ -176,7 +177,7 @@ export function DashboardView({ initialData }: { initialData: DashboardData }) {
                       {EVENT_LABELS[e.eventType as keyof typeof EVENT_LABELS] ?? e.eventType}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {e.cameraName ?? 'Unknown camera'} · {new Date(e.createdAt).toLocaleTimeString()}
+                      {e.cameraName ?? 'Unknown camera'} · {formatTime(e.createdAt)}
                     </span>
                   </div>
                 </div>
@@ -215,7 +216,7 @@ export function DashboardView({ initialData }: { initialData: DashboardData }) {
                       {extracted.name ?? `${d.docType} document`}
                     </span>
                     <span className="text-xs capitalize text-muted-foreground">
-                      {d.docType} · {new Date(d.createdAt).toLocaleString()}
+                      {d.docType} · {formatDateTime(d.createdAt)}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">

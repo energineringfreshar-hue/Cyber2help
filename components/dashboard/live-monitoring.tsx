@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { reportAerialIncursion } from '@/app/(app)/actions/surveillance'
 import { toast } from 'sonner'
 import { Radar, Satellite, RadioTower, Cctv, Plane, TriangleAlert, Waves } from 'lucide-react'
+import { formatTime } from '@/lib/format-time'
 
 type Status = 'active' | 'warning' | 'critical'
 
@@ -103,7 +104,7 @@ export function LiveMonitoring() {
     const localId = ++seqRef.current
     const droneId = `UAV-${String(localId).padStart(3, '0')}`
     setIncursions((prev) =>
-      [{ id: localId, time: new Date().toLocaleTimeString(), bearing, rangeKm }, ...prev].slice(0, 4),
+      [{ id: localId, time: formatTime(new Date()), bearing, rangeKm }, ...prev].slice(0, 4),
     )
     toast.error(`Unusual flight pattern detected — ${droneId}`, {
       description: `Crossed 30 km monitoring zone · bearing ${Math.round(bearing)}° · ${rangeKm.toFixed(0)} km`,
