@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { SeverityBadge } from '@/components/severity-badge'
 import { LiveIndicator } from '@/components/live-indicator'
+import { LiveMonitoring } from '@/components/dashboard/live-monitoring'
 import { EVENT_LABELS } from '@/lib/surveillance/rules'
 import { FileSearch, ShieldAlert, Video, ScanLine, ArrowRight, TriangleAlert } from 'lucide-react'
 
@@ -108,6 +109,9 @@ export function DashboardView({ initialData }: { initialData: DashboardData }) {
           href="/anpr"
         />
       </div>
+
+      {/* Live tactical monitoring — radar, drones, sensors, satellite */}
+      <LiveMonitoring />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Event severity breakdown */}
