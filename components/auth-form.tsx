@@ -44,13 +44,22 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   return (
     <main className="min-h-svh bg-background flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <ShieldCheck className="h-5 w-5" />
+        <div className="mb-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div className="leading-tight">
+              <p className="text-sm font-semibold tracking-tight text-foreground">
+                Seema Rakshak <span className="text-muted-foreground font-normal">सीमा रक्षक</span>
+              </p>
+              <p className="text-xs text-muted-foreground font-mono">SSB / MHA · Border Screening Platform</p>
+            </div>
           </div>
-          <div className="leading-tight">
-            <p className="text-sm font-semibold tracking-tight text-foreground">SecureBorder</p>
-            <p className="text-xs text-muted-foreground font-mono">SSB / MHA · Screening Platform</p>
+          <div className="mt-3 flex h-1 w-full overflow-hidden rounded-full" aria-hidden="true">
+            <span className="flex-1 bg-[var(--india-saffron)]" />
+            <span className="flex-1 bg-foreground/80" />
+            <span className="flex-1 bg-[var(--india-green)]" />
           </div>
         </div>
 

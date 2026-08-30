@@ -49,118 +49,95 @@
 
 :root {
   color-scheme: dark;
-  /* Deep slate command-center base */
-  --background: oklch(0.17 0.012 250);
-  --foreground: oklch(0.93 0.008 250);
-  --card: oklch(0.21 0.014 250);
-  --card-foreground: oklch(0.93 0.008 250);
-  --popover: oklch(0.19 0.014 250);
-  --popover-foreground: oklch(0.93 0.008 250);
-  /* Signature amber/gold accent — evokes passport stamps & border authority */
-  --primary: oklch(0.78 0.15 75);
-  --primary-foreground: oklch(0.2 0.03 75);
-  --secondary: oklch(0.27 0.015 250);
-  --secondary-foreground: oklch(0.93 0.008 250);
-  --muted: oklch(0.25 0.013 250);
-  --muted-foreground: oklch(0.65 0.012 250);
-  --accent: oklch(0.3 0.02 250);
-  --accent-foreground: oklch(0.93 0.008 250);
+  /* Deep navy command-center base — Government of India defence-tech aesthetic */
+  --background: oklch(0.16 0.028 255);
+  --foreground: oklch(0.94 0.008 250);
+  --card: oklch(0.2 0.03 258);
+  --card-foreground: oklch(0.94 0.008 250);
+  --popover: oklch(0.185 0.03 258);
+  --popover-foreground: oklch(0.94 0.008 250);
+  /* Signature saffron accent — Indian national identity */
+  --primary: oklch(0.74 0.16 58);
+  --primary-foreground: oklch(0.19 0.03 58);
+  --secondary: oklch(0.27 0.025 258);
+  --secondary-foreground: oklch(0.94 0.008 250);
+  --muted: oklch(0.25 0.022 258);
+  --muted-foreground: oklch(0.66 0.015 250);
+  --accent: oklch(0.3 0.03 258);
+  --accent-foreground: oklch(0.94 0.008 250);
   --destructive: oklch(0.6 0.22 25);
-  --border: oklch(0.3 0.014 250);
-  --input: oklch(0.28 0.014 250);
-  --ring: oklch(0.78 0.15 75);
-  /* Severity scale for charts: low->green, medium->amber, high->orange, critical->red */
-  --chart-1: oklch(0.7 0.16 155);
-  --chart-2: oklch(0.78 0.15 75);
+  --border: oklch(0.3 0.025 258);
+  --input: oklch(0.28 0.025 258);
+  --ring: oklch(0.74 0.16 58);
+  /* Severity scale: low->India green, medium->saffron, high->orange, critical->red */
+  --chart-1: oklch(0.64 0.14 152);
+  --chart-2: oklch(0.74 0.16 58);
   --chart-3: oklch(0.68 0.18 45);
   --chart-4: oklch(0.6 0.22 25);
-  --chart-5: oklch(0.55 0.02 250);
+  --chart-5: oklch(0.55 0.04 255);
   --radius: 0.5rem;
-  --sidebar: oklch(0.15 0.012 250);
+  --sidebar: oklch(0.13 0.03 258);
   --sidebar-foreground: oklch(0.9 0.008 250);
-  --sidebar-primary: oklch(0.78 0.15 75);
-  --sidebar-primary-foreground: oklch(0.2 0.03 75);
-  --sidebar-accent: oklch(0.27 0.015 250);
-  --sidebar-accent-foreground: oklch(0.93 0.008 250);
-  --sidebar-border: oklch(0.28 0.014 250);
-  --sidebar-ring: oklch(0.78 0.15 75);
+  --sidebar-primary: oklch(0.74 0.16 58);
+  --sidebar-primary-foreground: oklch(0.19 0.03 58);
+  --sidebar-accent: oklch(0.27 0.025 258);
+  --sidebar-accent-foreground: oklch(0.94 0.008 250);
+  --sidebar-border: oklch(0.26 0.025 258);
+  --sidebar-ring: oklch(0.74 0.16 58);
+  /* National identity tokens */
+  --india-saffron: oklch(0.74 0.16 58);
+  --india-green: oklch(0.64 0.14 152);
+  --india-navy: oklch(0.28 0.08 258);
   /* Semantic severity tokens used across the app */
-  --sev-low: oklch(0.7 0.16 155);
-  --sev-medium: oklch(0.78 0.15 75);
+  --sev-low: oklch(0.64 0.14 152);
+  --sev-medium: oklch(0.74 0.16 58);
   --sev-high: oklch(0.68 0.18 45);
   --sev-critical: oklch(0.6 0.22 25);
 }
 
+/* The app renders dark-only with the Government of India palette defined in :root.
+   The .dark class (applied on <html>) and the prefers-dark media query inherit
+   the same tokens so the national theme is applied consistently. */
 .dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    color-scheme: dark;
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-  }
+  --background: oklch(0.16 0.028 255);
+  --foreground: oklch(0.94 0.008 250);
+  --card: oklch(0.2 0.03 258);
+  --card-foreground: oklch(0.94 0.008 250);
+  --popover: oklch(0.185 0.03 258);
+  --popover-foreground: oklch(0.94 0.008 250);
+  --primary: oklch(0.74 0.16 58);
+  --primary-foreground: oklch(0.19 0.03 58);
+  --secondary: oklch(0.27 0.025 258);
+  --secondary-foreground: oklch(0.94 0.008 250);
+  --muted: oklch(0.25 0.022 258);
+  --muted-foreground: oklch(0.66 0.015 250);
+  --accent: oklch(0.3 0.03 258);
+  --accent-foreground: oklch(0.94 0.008 250);
+  --destructive: oklch(0.6 0.22 25);
+  --border: oklch(0.3 0.025 258);
+  --input: oklch(0.28 0.025 258);
+  --ring: oklch(0.74 0.16 58);
+  --chart-1: oklch(0.64 0.14 152);
+  --chart-2: oklch(0.74 0.16 58);
+  --chart-3: oklch(0.68 0.18 45);
+  --chart-4: oklch(0.6 0.22 25);
+  --chart-5: oklch(0.55 0.04 255);
+  --sidebar: oklch(0.13 0.03 258);
+  --sidebar-foreground: oklch(0.9 0.008 250);
+  --sidebar-primary: oklch(0.74 0.16 58);
+  --sidebar-primary-foreground: oklch(0.19 0.03 58);
+  --sidebar-accent: oklch(0.27 0.025 258);
+  --sidebar-accent-foreground: oklch(0.94 0.008 250);
+  --sidebar-border: oklch(0.26 0.025 258);
+  --sidebar-ring: oklch(0.74 0.16 58);
+  --india-saffron: oklch(0.74 0.16 58);
+  --india-green: oklch(0.64 0.14 152);
+  --india-navy: oklch(0.28 0.08 258);
+  --sev-low: oklch(0.64 0.14 152);
+  --sev-medium: oklch(0.74 0.16 58);
+  --sev-high: oklch(0.68 0.18 45);
+  --sev-critical: oklch(0.6 0.22 25);
 }
 
 @layer base {

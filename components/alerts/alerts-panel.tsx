@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import useSWR from 'swr'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { SeverityBadge } from '@/components/severity-badge'
+import { LiveIndicator } from '@/components/live-indicator'
 import { acknowledgeEvent } from '@/app/(app)/actions/surveillance'
 import { toast } from 'sonner'
 import { Check, MapPin, Search, ShieldAlert } from 'lucide-react'
@@ -24,6 +26,16 @@ type EventRow = {
   createdAt: Date | string
 }
 
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Failed to load alerts')
+  return res.json() as Promise<{ events: EventRow[]; serverTime: string }>
+}
+
+// Poll every 4s. This is the SSE/WebSocket fallback recommended for the
+// Neon-backed stack, which has no built-in realtime channel.
+const REFRESH_MS = 4000
+
 export function AlertsPanel({
   initialEvents,
   canAck,
@@ -31,21 +43,56 @@ export function AlertsPanel({
   initialEvents: EventRow[]
   canAck: boolean
 }) {
-  const [events, setEvents] = useState(initialEvents)
+  const { data, error, isValidating, mutate } = useSWR('/api/events', fetcher, {
+    fallbackData: { events: initialEvents, serverTime: new Date().toISOString() },
+    refreshInterval: REFRESH_MS,
+    revalidateOnFocus: true,
+    keepPreviousData: true,
+  })
+
+  const events = data?.events ?? initialEvents
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'active' | 'critical'>('all')
   const [pending, startTransition] = useTransition()
+  const [updatedAt, setUpdatedAt] = useState<number | null>(Date.now())
+
+  // Track known ids so we can notify officers when a fresh critical alert lands.
+  const seenIds = useRef<Set<number>>(new Set(initialEvents.map((e) => e.id)))
+
+  useEffect(() => {
+    if (!data) return
+    setUpdatedAt(Date.now())
+    for (const e of data.events) {
+      if (!seenIds.current.has(e.id)) {
+        seenIds.current.add(e.id)
+        if (e.severity === 'critical' && !e.acknowledged) {
+          toast.error(
+            `CRITICAL: ${EVENT_LABELS[e.eventType as keyof typeof EVENT_LABELS] ?? e.eventType} — ${e.cameraName ?? 'camera'}`,
+            { description: `Risk ${e.riskScore} · ${e.location ?? 'perimeter'}` },
+          )
+        }
+      }
+    }
+  }, [data])
 
   function ack(id: number) {
     startTransition(async () => {
+      // Optimistically flip the row, then reconcile with the server.
+      mutate(
+        (curr) =>
+          curr && {
+            ...curr,
+            events: curr.events.map((e) => (e.id === id ? { ...e, acknowledged: true } : e)),
+          },
+        { revalidate: false },
+      )
       try {
         await acknowledgeEvent(id)
-        setEvents((prev) =>
-          prev.map((e) => (e.id === id ? { ...e, acknowledged: true } : e)),
-        )
         toast.success('Alert acknowledged and recorded to the audit ledger')
+        mutate()
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to acknowledge')
+        mutate()
       }
     })
   }
@@ -83,7 +130,13 @@ export function AlertsPanel({
             className="pl-8"
           />
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex items-center gap-2">
+          <LiveIndicator
+            isLive={!error}
+            isValidating={isValidating}
+            updatedAt={updatedAt}
+            className="mr-1"
+          />
           {(['all', 'active', 'critical'] as const).map((f) => (
             <Button
               key={f}
