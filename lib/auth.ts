@@ -1,6 +1,28 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
 
+// The v0 development preview renders the app inside an iframe whose document
+// origin is the project's `*.vusercontent.net` host, but the provided env vars
+// only carry the `*.v0.build`, `*.vercel.run`, and dev-app origins. Without the
+// vusercontent origin in trustedOrigins, Better Auth rejects sign-in/sign-up
+// with "Invalid origin". We derive the EXACT project-specific vusercontent
+// origin from the known v0 hosts (never a wildcard, never a reflected origin).
+function deriveV0PreviewOrigins(): string[] {
+  const origins = new Set<string>()
+  for (const raw of [process.env.V0_RUNTIME_URL, process.env.V0_BUILD_URL]) {
+    if (!raw) continue
+    try {
+      const { host } = new URL(raw)
+      // e.g. v0-<slug>.v0.build -> v0-<slug>.vusercontent.net
+      const vuser = host.replace(/\.v0\.build$/, ".vusercontent.net")
+      if (vuser !== host) origins.add(`https://${vuser}`)
+    } catch {
+      // ignore malformed URLs
+    }
+  }
+  return [...origins]
+}
+
 export const auth = betterAuth({
   database: pool,
   baseURL:
@@ -33,6 +55,8 @@ export const auth = betterAuth({
           ...(process.env.V0_DEV_APP_URL ? [process.env.V0_DEV_APP_URL] : []),
           ...(process.env.V0_BUILD_URL ? [process.env.V0_BUILD_URL] : []),
           ...(process.env.V0_SANDBOX_URL ? [process.env.V0_SANDBOX_URL] : []),
+          // The actual iframe origin used by the v0 preview surface.
+          ...deriveV0PreviewOrigins(),
         ]
       : []),
     ...(process.env.NODE_ENV === "production"
