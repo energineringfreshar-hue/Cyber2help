@@ -56,12 +56,22 @@ function resolveTrustedOrigins(request?: Request): string[] {
   }
 
   // Trust the browser's real origin when it belongs to a v0 preview host.
+  const rawOrigin = request?.headers.get('origin') ?? null
+  const rawReferer = request?.headers.get('referer') ?? null
+  const secFetchSite = request?.headers.get('sec-fetch-site') ?? null
   const origin =
-    request?.headers.get('origin') ??
-    (request?.headers.get('referer')
-      ? new URL(request.headers.get('referer') as string).origin
-      : null)
-  if (isTrustedV0PreviewOrigin(origin)) dev.push(origin as string)
+    rawOrigin ?? (rawReferer ? new URL(rawReferer).origin : null)
+
+  // DEV ONLY: a same-origin request means the app is calling its own API from
+  // the page the browser already loaded. That is inherently safe and covers
+  // ANY v0 preview host family (vusercontent / v0.build / v0.dev / future),
+  // so trust the resolved origin. Cross-site requests fall through to the
+  // explicit v0 preview allowlist below. This never reflects an arbitrary
+  // cross-site origin and never disables the CSRF/origin check.
+  const isSameOrigin = secFetchSite === 'same-origin' || secFetchSite === 'none'
+  if (origin && (isSameOrigin || isTrustedV0PreviewOrigin(origin))) {
+    dev.push(origin)
+  }
 
   return dev
 }
