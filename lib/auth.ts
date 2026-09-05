@@ -90,27 +90,9 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [
-    ...(process.env.NODE_ENV === "development"
-      ? [
-          "http://localhost:3000",
-          ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),
-          ...(process.env.V0_DEV_APP_URL ? [process.env.V0_DEV_APP_URL] : []),
-          ...(process.env.V0_BUILD_URL ? [process.env.V0_BUILD_URL] : []),
-          ...(process.env.V0_SANDBOX_URL ? [process.env.V0_SANDBOX_URL] : []),
-          // The actual iframe origin used by the v0 preview surface.
-          ...deriveV0PreviewOrigins(),
-        ]
-      : []),
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-          ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
-            ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
-            : []),
-        ]
-      : []),
-  ],
+  // Function form: Better Auth evaluates this per request, so we can validate
+  // the browser's ACTUAL Origin header against the v0 preview allowlist.
+  trustedOrigins: resolveTrustedOrigins,
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
