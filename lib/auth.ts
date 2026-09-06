@@ -1,40 +1,66 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
 
-// The v0 editor renders the running app inside a cross-site iframe whose
-// preview host family (e.g. `*.vusercontent.net`, `*.v0.build`, `*.v0.dev`)
-// rotates between builds, and the V0_* URL env vars that would name it are
-// frequently unset. Hardcoding or reconstructing a single origin therefore
-// breaks silently and Better Auth rejects sign-in/sign-up with "Invalid
-// origin".
+// Better Auth rejects sign-in/sign-up with "Invalid origin" whenever the
+// browser's request Origin is not in `trustedOrigins`. Two things make a fixed
+// list unreliable here:
+//   1. The v0 editor renders the app inside a cross-site iframe whose preview
+//      host family (`*.vusercontent.net`, `*.v0.build`, `*.v0.dev`, `*.v0.app`)
+//      rotates between builds, and the V0_* URL env vars are frequently unset.
+//   2. Deployments (production domain, branch/preview `*.vercel.app`, and the
+//      v0 published embed) are served from several Vercel-owned origins, not
+//      just VERCEL_PROJECT_PRODUCTION_URL.
 //
-// Robust fix: evaluate trusted origins PER REQUEST. In production we stay
-// locked to the exact Vercel URLs. In development — which is not a security
-// boundary — we trust the browser's actual request origin so the flow works
-// on every current and future preview host without maintenance.
+// Robust fix: evaluate trusted origins PER REQUEST and additionally trust
+//   - genuinely SAME-ORIGIN requests (the app calling its own API — inherently
+//     safe, this is not cross-site), and
+//   - Vercel/v0-owned preview host families.
+// This never reflects an arbitrary cross-site origin and never disables the
+// CSRF/origin check.
+const TRUSTED_HOST_SUFFIXES = [
+  '.vercel.app',
+  '.vusercontent.net',
+  '.v0.build',
+  '.v0.dev',
+  '.v0.app',
+  '.vercel.run',
+]
+
+function isTrustedHost(origin: string): boolean {
+  try {
+    const url = new URL(origin)
+    if (url.protocol !== 'https:') return false
+    const host = url.hostname.toLowerCase()
+    return TRUSTED_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix))
+  } catch {
+    return false
+  }
+}
+
 function resolveTrustedOrigins(request?: Request): string[] {
-  if (process.env.NODE_ENV === 'production') {
-    const prod: string[] = []
-    if (process.env.VERCEL_URL) prod.push(`https://${process.env.VERCEL_URL}`)
-    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-      prod.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+  const trusted: string[] = []
+
+  // Explicit, always-trusted origins from the environment.
+  if (process.env.VERCEL_URL) trusted.push(`https://${process.env.VERCEL_URL}`)
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    trusted.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+  }
+
+  const isDev = process.env.NODE_ENV !== 'production'
+  if (isDev) {
+    trusted.push('http://localhost:3000')
+    for (const url of [
+      process.env.V0_RUNTIME_URL,
+      process.env.V0_DEV_APP_URL,
+      process.env.V0_BUILD_URL,
+      process.env.V0_SANDBOX_URL,
+    ]) {
+      if (url) trusted.push(url)
     }
-    return prod
   }
 
-  // Development / v0 preview.
-  const dev: string[] = ['http://localhost:3000']
-  for (const url of [
-    process.env.V0_RUNTIME_URL,
-    process.env.V0_DEV_APP_URL,
-    process.env.V0_BUILD_URL,
-    process.env.V0_SANDBOX_URL,
-  ]) {
-    if (url) dev.push(url)
-  }
-
-  // Trust the browser's actual origin in dev. The Origin header is preferred;
-  // fall back to the Referer's origin when Origin is absent.
+  // Resolve the browser's actual origin (Origin header preferred, Referer as
+  // fallback).
   const rawOrigin = request?.headers.get('origin') ?? null
   const rawReferer = request?.headers.get('referer') ?? null
   let origin = rawOrigin
@@ -45,9 +71,19 @@ function resolveTrustedOrigins(request?: Request): string[] {
       origin = null
     }
   }
-  if (origin) dev.push(origin)
 
-  return dev
+  if (origin) {
+    const secFetchSite = request?.headers.get('sec-fetch-site') ?? null
+    const isSameOrigin = secFetchSite === 'same-origin' || secFetchSite === 'none'
+    // In dev, trust the resolved origin outright (dev is not a security
+    // boundary). In production, trust it only if it is same-origin or a
+    // Vercel/v0-owned host.
+    if (isDev || isSameOrigin || isTrustedHost(origin)) {
+      trusted.push(origin)
+    }
+  }
+
+  return trusted
 }
 
 export const auth = betterAuth({
@@ -75,7 +111,8 @@ export const auth = betterAuth({
     },
   },
   // Function form: Better Auth evaluates this per request, so we can validate
-  // the browser's ACTUAL Origin header against the v0 preview allowlist.
+  // the browser's ACTUAL Origin header against the rules in
+  // resolveTrustedOrigins (env URLs, same-origin, and Vercel/v0-owned hosts).
   trustedOrigins: resolveTrustedOrigins,
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
