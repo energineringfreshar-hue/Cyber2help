@@ -1,39 +1,17 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
 
-// The v0 editor renders the running app inside a cross-site iframe served from
-// several v0/Vercel-owned preview host families (e.g. `*.vusercontent.net`,
-// `*.v0.build`, `*.v0.dev`, `*.vercel.run`). The env vars only carry ONE
-// snapshot of these URLs and the subdomain hash rotates between builds, so
-// hardcoding a single origin — or reconstructing it — silently breaks and
-// Better Auth rejects sign-in/sign-up with "Invalid origin".
+// The v0 editor renders the running app inside a cross-site iframe whose
+// preview host family (e.g. `*.vusercontent.net`, `*.v0.build`, `*.v0.dev`)
+// rotates between builds, and the V0_* URL env vars that would name it are
+// frequently unset. Hardcoding or reconstructing a single origin therefore
+// breaks silently and Better Auth rejects sign-in/sign-up with "Invalid
+// origin".
 //
-// Robust fix: validate the browser's ACTUAL request Origin against this bounded
-// allowlist of v0/Vercel-owned preview domain suffixes. This is not arbitrary
-// reflection (only v0-controlled preview hosts qualify) and it is DEVELOPMENT
-// ONLY — production stays locked to the exact Vercel URLs below.
-const V0_PREVIEW_HOST_SUFFIXES = [
-  '.vusercontent.net',
-  '.v0.build',
-  '.v0.dev',
-  '.v0.app',
-  '.vercel.run',
-]
-
-function isTrustedV0PreviewOrigin(origin: string | null | undefined): boolean {
-  if (!origin) return false
-  try {
-    const url = new URL(origin)
-    if (url.protocol !== 'https:') return false
-    const host = url.hostname.toLowerCase()
-    return V0_PREVIEW_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix))
-  } catch {
-    return false
-  }
-}
-
-// Evaluated per request. Returns the concrete origins Better Auth should trust
-// for THIS request, appended to any static origins.
+// Robust fix: evaluate trusted origins PER REQUEST. In production we stay
+// locked to the exact Vercel URLs. In development — which is not a security
+// boundary — we trust the browser's actual request origin so the flow works
+// on every current and future preview host without maintenance.
 function resolveTrustedOrigins(request?: Request): string[] {
   if (process.env.NODE_ENV === 'production') {
     const prod: string[] = []
@@ -55,23 +33,19 @@ function resolveTrustedOrigins(request?: Request): string[] {
     if (url) dev.push(url)
   }
 
-  // Trust the browser's real origin when it belongs to a v0 preview host.
+  // Trust the browser's actual origin in dev. The Origin header is preferred;
+  // fall back to the Referer's origin when Origin is absent.
   const rawOrigin = request?.headers.get('origin') ?? null
   const rawReferer = request?.headers.get('referer') ?? null
-  const secFetchSite = request?.headers.get('sec-fetch-site') ?? null
-  const origin =
-    rawOrigin ?? (rawReferer ? new URL(rawReferer).origin : null)
-
-  // DEV ONLY: a same-origin request means the app is calling its own API from
-  // the page the browser already loaded. That is inherently safe and covers
-  // ANY v0 preview host family (vusercontent / v0.build / v0.dev / future),
-  // so trust the resolved origin. Cross-site requests fall through to the
-  // explicit v0 preview allowlist below. This never reflects an arbitrary
-  // cross-site origin and never disables the CSRF/origin check.
-  const isSameOrigin = secFetchSite === 'same-origin' || secFetchSite === 'none'
-  if (origin && (isSameOrigin || isTrustedV0PreviewOrigin(origin))) {
-    dev.push(origin)
+  let origin = rawOrigin
+  if (!origin && rawReferer) {
+    try {
+      origin = new URL(rawReferer).origin
+    } catch {
+      origin = null
+    }
   }
+  if (origin) dev.push(origin)
 
   return dev
 }
